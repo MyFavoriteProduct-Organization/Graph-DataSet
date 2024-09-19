@@ -27,15 +27,14 @@ def load_graph(graph):
     title = 'Graph of Purchase'
 
     plt.figure(figsize=figsize)
-    position = nx.spring_layout(G, seed=42)  # Semilla para reproducibilidad
-    category_nodes = [n for n, d in G.nodes(data=True) if d['type'] == 'category']
-    product_nodes = [n for n, d in G.nodes(data=True) if d['type'] == 'product']
+    position = nx.spring_layout(G, seed=42)  
+    category_nodes = [n for n, attr in G.nodes(data=True) if attr['type'] == 'category']
+    product_nodes = [n for n, attr in G.nodes(data=True) if attr['type'] == 'product']
     nx.draw_networkx_nodes(G, position, nodelist=category_nodes, node_color='r', node_size=node_size, label='Category')
     nx.draw_networkx_nodes(G, position, nodelist=product_nodes, node_color='b', node_size=node_size, label='Product')
 
     nx.draw_networkx_edges(G, position, alpha=0.5, edge_color='gray')
 
-    nx.draw_networkx_labels(G, position, font_size=10)
     
     plt.title(title)
     plt.legend()
