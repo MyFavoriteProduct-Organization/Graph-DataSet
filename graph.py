@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import networkx as nx
 def load_data():
-    return pd.read_csv('/Users/lordmathi2741/Downloads/BigBasket.csv')
+    return pd.read_csv('BigBasket.csv')
 
 def get_data_from_dataset(dataset):
        purchase = {}
