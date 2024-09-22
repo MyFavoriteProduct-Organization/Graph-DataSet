@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import networkx as nx
 import random
+import math
 
 # Cargar los datos desde el archivo CSV
 def load_data():
@@ -19,19 +20,23 @@ def get_data_from_dataset(dataset):
     return purchase
 
 # Crear y dibujar el grafo
-def load_graph(graph):
-    users = ['U1', 'U2', 'U3', 'U4', 'U5']
+def load_graph(graph, num_users=50):
+    users = [f'U{i+1}' for i in range(num_users)]
     all_products = list({product for products in graph.values() for product in products})
 
+    # Calcular el número de filas necesarias
+    num_rows = math.ceil(len(users) / 5)
+
     # Crear una figura con subplots
-    fig, axes = plt.subplots(1, len(users), figsize=(20, 5), sharex=True, sharey=True)
+    fig, axes = plt.subplots(num_rows, 5, figsize=(25, 5 * num_rows), sharex=True, sharey=True)
+    axes = axes.flatten()  # Aplanar la matriz de ejes para un acceso más fácil
 
     for i, user in enumerate(users):
         G = nx.Graph()
         G.add_node(user, type='user')
 
         # Asignar aleatoriamente 10 productos a cada usuario con pesos aleatorios de hasta 4
-        sampled_products = random.sample(all_products, 10)
+        sampled_products = random.sample(all_products, 30)
         for product in sampled_products:
             weight = random.randint(1, 6)
             G.add_edge(user, product, weight=weight)
@@ -48,6 +53,10 @@ def load_graph(graph):
         edge_labels = {(u, v): d['weight'] for (u, v, d) in edges}
         nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=8, ax=ax)
         ax.set_title(f'Subgrafo de {user}')
+
+    # Eliminar subplots vacíos si hay menos de 5 * num_rows usuarios
+    for j in range(i + 1, len(axes)):
+        fig.delaxes(axes[j])
 
     plt.tight_layout()
     plt.show()
