@@ -20,59 +20,36 @@ def get_data_from_dataset(dataset):
 
 # Crear y dibujar el grafo
 def load_graph(graph):
-    G = nx.Graph()
-
-    # Agregar nodos de usuarios de ejemplo
-    users = ['U1']
-    for user in users:
-        G.add_node(user, type='user')
-
-    # Obtener todos los productos del dataset
+    users = ['U1', 'U2', 'U3', 'U4', 'U5']
     all_products = list({product for products in graph.values() for product in products})
 
-    # Asignar aleatoriamente 10 productos a cada usuario con pesos aleatorios de hasta 4
-    interactions = []
-    for user in users:
-        sampled_products = random.sample(all_products, 25)
+    # Crear una figura con subplots
+    fig, axes = plt.subplots(1, len(users), figsize=(20, 5), sharex=True, sharey=True)
+
+    for i, user in enumerate(users):
+        G = nx.Graph()
+        G.add_node(user, type='user')
+
+        # Asignar aleatoriamente 10 productos a cada usuario con pesos aleatorios de hasta 4
+        sampled_products = random.sample(all_products, 10)
         for product in sampled_products:
             weight = random.randint(1, 6)
-            interactions.append((user, product, weight))
+            G.add_edge(user, product, weight=weight)
+            G.add_node(product, type='product')
 
-    # Agregar aristas de interacción entre usuarios y productos
-    for user, product, weight in interactions:
-        G.add_edge(user, product, weight=weight)
+        # Dibujar el subgrafo
+        pos = nx.spring_layout(G, seed=42, k=3)
+        ax = axes[i]
+        nx.draw_networkx_nodes(G, pos, nodelist=[user], node_color='r', node_size=500, ax=ax, label='Usuario')
+        nx.draw_networkx_nodes(G, pos, nodelist=sampled_products, node_color='b', node_size=500, ax=ax, label='Productos')
+        edges = G.edges(data=True)
+        nx.draw_networkx_edges(G, pos, edgelist=edges, width=[d['weight'] for (u, v, d) in edges], ax=ax)
+        nx.draw_networkx_labels(G, pos, font_size=8, ax=ax)
+        edge_labels = {(u, v): d['weight'] for (u, v, d) in edges}
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=8, ax=ax)
+        ax.set_title(f'Subgrafo de {user}')
 
-    # Filtrar productos que los usuarios han comprado
-    purchased_products = {product for _, product, _ in interactions}
-
-    # Agregar nodos de productos comprados
-    for product in purchased_products:
-        G.add_node(product, type='product')
-
-    # Dibujar el grafo
-    pos = nx.spring_layout(G, seed=42, k=3)  # Ajustar el parámetro k para más espacio entre nodos
-
-    # Ajustar el tamaño del canvas
-    plt.figure(figsize=(12, 8))  # Ancho y alto en pulgadas
-
-    # Dibujar nodos
-    nx.draw_networkx_nodes(G, pos, nodelist=purchased_products, node_color='b', node_size=500, label='Productos')
-    nx.draw_networkx_nodes(G, pos, nodelist=users, node_color='r', node_size=500, label='Usuarios')
-
-    # Dibujar aristas con pesos
-    edges = G.edges(data=True)
-    nx.draw_networkx_edges(G, pos, edgelist=edges, width=[d['weight'] for (u, v, d) in edges])
-
-    # Dibujar etiquetas de nodos con tamaño de letra reducido
-    nx.draw_networkx_labels(G, pos, font_size=8)
-
-    # Dibujar etiquetas de pesos en las aristas con tamaño de letra reducido
-    edge_labels = {(u, v): d['weight'] for (u, v, d) in edges}
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=8)
-
-    # Mostrar leyenda y grafo
-    plt.legend(scatterpoints=1)
-    plt.title('Grafo de Usuarios y Productos con Pesos')
+    plt.tight_layout()
     plt.show()
 
 # Cargar y procesar los datos
